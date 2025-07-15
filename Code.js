@@ -4,6 +4,7 @@ const DOMAIN_NAME = "domain.com";
 const EID_LENGTH = 7;
 const DEFAULT_AGENT_DIVISION = "Customer Specialist";
 const DEFAULT_AGENT_ROLE = "agent";
+const TEMPLATE_ID_LENGTH = 6;
 
 /**
  * Entry point for the web app
