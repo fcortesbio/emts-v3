@@ -294,8 +294,18 @@
       // Create mode
       console.log("Create mode - no template ID");
       document.getElementById("editor-title").textContent = "Create Template";
+      document.getElementById("template-id").value = "";
       document.getElementById("template-id-debug").style.display = "none";
       document.getElementById("delete-template-btn").style.display = "none";
+
+      // Clear all form fields explicitly for create mode
+      document.getElementById("inquiry-reason").value = "";
+      document.getElementById("topic-name").value = "";
+      document.getElementById("case-name").value = "";
+      document.getElementById("email-subject-input").value = "";
+      document.getElementById("template-content-input").value = "";
+      document.getElementById("backend-log-input").value = "";
+      document.getElementById("tasks-input").value = "";
     }
   }
 

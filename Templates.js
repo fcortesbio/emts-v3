@@ -64,7 +64,7 @@ function getTemplateById(templateId) {
 
     for (let i = 1; i < data.length; i++) {
       console.log('Checking row', i, 'ID:', data[i][0], 'vs search ID:', templateId);
-      if (data[i][0] == templateId) {
+      if (data[i][0] === templateId) {
         console.log('Found matching template at row', i + 1);
         return {
           templateId: data[i][0],
@@ -110,19 +110,34 @@ function saveTemplate(templateData) {
       return { success: false, message: 'All required fields must be filled' };
     }
 
-    const isUpdate = templateData.templateId && templateData.templateId.toString().trim() !== '';
+    // Check if this is an update (existing template ID that's not empty, null, undefined, or "undefined")
+    const templateIdStr = templateData.templateId ? templateData.templateId.toString().trim() : '';
+    const isUpdate = templateIdStr !== '' && templateIdStr !== 'undefined' && templateIdStr !== 'null';
     console.log('Is update operation:', isUpdate, 'Template ID:', templateData.templateId);
 
-    // Check for duplicate (same inquiry, topic, case) when creating new template
-    if (!isUpdate && checkDuplicateTemplate(templateData.inquiryReason, templateData.topicName, templateData.caseName)) {
-      console.log('Checking for duplicate template...');
-      console.log('Duplicate template found');
-      return { success: false, message: 'This template already exists. Please choose a different Case name.' };
-    }
+    let templateId;
 
-    // Generate new template ID for create operations
-    const templateId = isUpdate ? templateData.templateId : generateTemplateId();
-    console.log('Using template ID:', templateId);
+    if (isUpdate) {
+      // Use existing template ID
+      templateId = templateData.templateId;
+      console.log('Using existing template ID:', templateId);
+    } else {
+      // Check for duplicate (same inquiry, topic, case) when creating new template
+      if (checkDuplicateTemplate(templateData.inquiryReason, templateData.topicName, templateData.caseName)) {
+        console.log('Duplicate template found');
+        return { success: false, message: 'This template already exists. Please choose a different Case name.' };
+      }
+
+      // For create mode, use the template ID that was generated when the form opened
+      // If it's still invalid, generate a new one
+      if (templateIdStr === '' || templateIdStr === 'undefined' || templateIdStr === 'null') {
+        console.log('Template ID is invalid, generating new one...');
+        templateId = generateTemplateId();
+      } else {
+        templateId = templateData.templateId;
+      }
+      console.log('Using template ID for new template:', templateId);
+    }
 
     const rowData = [
       templateId,
@@ -145,7 +160,7 @@ function saveTemplate(templateData) {
 
       for (let i = 1; i < data.length; i++) {
         console.log('Checking row', i, 'ID:', data[i][0], 'vs template ID:', templateData.templateId);
-        if (data[i][0].toString() == templateData.templateId.toString()) {
+        if (data[i][0].toString() === templateData.templateId.toString()) {
           console.log('Found matching row, updating...');
           templatesSheet.getRange(i + 1, 1, 1, 8).setValues([rowData]);
           found = true;
@@ -185,7 +200,7 @@ function checkDuplicateTemplate(inquiryReason, topicName, caseName) {
   const data = templatesSheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][1] == inquiryReason && data[i][2] == topicName && data[i][3] == caseName) {
+    if (data[i][1] === inquiryReason && data[i][2] === topicName && data[i][3] === caseName) {
       return true;
     }
   }
@@ -243,7 +258,7 @@ function deleteTemplate(templateId) {
 
     for (let i = 1; i < data.length; i++) {
       console.log('Checking row', i, 'ID:', data[i][0], 'vs template ID:', templateId);
-      if (data[i][0] == templateId) {
+      if (data[i][0] === templateId) {
         console.log('Found matching template, deleting row', i + 1);
         templatesSheet.deleteRow(i + 1);
         console.log('Template deleted successfully');
