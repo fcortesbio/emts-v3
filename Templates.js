@@ -64,7 +64,7 @@ function getTemplateById(templateId) {
 
     for (let i = 1; i < data.length; i++) {
       console.log('Checking row', i, 'ID:', data[i][0], 'vs search ID:', templateId);
-      if (data[i][0] === templateId) {
+      if (data[i][0] == templateId) {
         console.log('Found matching template at row', i + 1);
         return {
           templateId: data[i][0],
@@ -143,7 +143,7 @@ function saveTemplate(templateData) {
 
       for (let i = 1; i < data.length; i++) {
         console.log('Checking row', i, 'ID:', data[i][0], 'vs template ID:', templateData.templateId);
-        if (data[i][0] === templateData.templateId) {
+        if (data[i][0] == templateData.templateId) {
           console.log('Found matching row, updating...');
           templatesSheet.getRange(i + 1, 1, 1, 8).setValues([rowData]);
           found = true;
@@ -183,7 +183,7 @@ function checkDuplicateTemplate(inquiryReason, topicName, caseName) {
   const data = templatesSheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][1] === inquiryReason && data[i][2] === topicName && data[i][3] === caseName) {
+    if (data[i][1] == inquiryReason && data[i][2] == topicName && data[i][3] == caseName) {
       return true;
     }
   }
@@ -218,7 +218,7 @@ function deleteTemplate(templateId) {
 
     for (let i = 1; i < data.length; i++) {
       console.log('Checking row', i, 'ID:', data[i][0], 'vs template ID:', templateId);
-      if (data[i][0] === templateId) {
+      if (data[i][0] == templateId) {
         console.log('Found matching template, deleting row', i + 1);
         templatesSheet.deleteRow(i + 1);
         console.log('Template deleted successfully');
