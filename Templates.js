@@ -110,20 +110,22 @@ function saveTemplate(templateData) {
       return { success: false, message: 'All required fields must be filled' };
     }
 
-    const isUpdate = templateData.templateId && templateData.templateId.trim() !== '';
+    const isUpdate = templateData.templateId && templateData.templateId.toString().trim() !== '';
     console.log('Is update operation:', isUpdate, 'Template ID:', templateData.templateId);
 
     // Check for duplicate (same inquiry, topic, case) when creating new template
-    if (!isUpdate) {
+    if (!isUpdate && checkDuplicateTemplate(templateData.inquiryReason, templateData.topicName, templateData.caseName)) {
       console.log('Checking for duplicate template...');
-      if (checkDuplicateTemplate(templateData.inquiryReason, templateData.topicName, templateData.caseName)) {
-        console.log('Duplicate template found');
-        return { success: false, message: 'This template already exists. Please choose a different Case name.' };
-      }
+      console.log('Duplicate template found');
+      return { success: false, message: 'This template already exists. Please choose a different Case name.' };
     }
 
+    // Generate new template ID for create operations
+    const templateId = isUpdate ? templateData.templateId : generateTemplateId();
+    console.log('Using template ID:', templateId);
+
     const rowData = [
-      isUpdate ? templateData.templateId : generateTemplateId(),
+      templateId,
       templateData.inquiryReason,
       templateData.topicName,
       templateData.caseName,
@@ -143,7 +145,7 @@ function saveTemplate(templateData) {
 
       for (let i = 1; i < data.length; i++) {
         console.log('Checking row', i, 'ID:', data[i][0], 'vs template ID:', templateData.templateId);
-        if (data[i][0] == templateData.templateId) {
+        if (data[i][0].toString() == templateData.templateId.toString()) {
           console.log('Found matching row, updating...');
           templatesSheet.getRange(i + 1, 1, 1, 8).setValues([rowData]);
           found = true;
@@ -192,10 +194,33 @@ function checkDuplicateTemplate(inquiryReason, topicName, caseName) {
 }
 
 /**
- * Generate unique template ID
+ * Generates a unique numeric template ID of a specified length.
+ * The ID will consist of random digits and will always have the length
+ * defined by TEMPLATE_ID_LENGTH.
+ *
+ * @returns {string} The generated numeric template ID.
  */
 function generateTemplateId() {
-  return 'TPL_' + Utilities.getUuid().substring(0, 8).toUpperCase();
+  if (!TEMPLATE_ID_LENGTH) return { success: false, message: 'TEMPLATE_ID_LENGTH not defined' };
+  const length = TEMPLATE_ID_LENGTH;
+  // Calculate the minimum value for a number with TEMPLATE_ID_LENGTH digits.
+  // For example, if length is 6, min is 100000 (10^(6-1)).
+  const min = Math.pow(10, length - 1);
+
+  // Calculate the maximum value for a number with TEMPLATE_ID_LENGTH digits.
+  // For example, if length is 6, max is 999999 (10^6 - 1).
+  const max = Math.pow(10, length) - 1;
+
+  // Generate a random number between min (inclusive) and max (inclusive).
+  // Math.random() generates a number between 0 (inclusive) and 1 (exclusive).
+  // We scale it to our desired range and then floor it to get an integer.
+  const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Convert the number to a string. This ensures it can be used as an ID
+  // and maintains any leading zeros if the generation method were different
+  // (though for this method, leading zeros won't occur as it generates
+  // numbers within the exact range).
+  return randomNumber.toString();
 }
 
 /**
