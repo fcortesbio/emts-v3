@@ -257,6 +257,8 @@
   }
 
   function showTemplateEditor(templateData = null) {
+    console.log("showTemplateEditor called with:", templateData);
+
     document.getElementById("welcome-message").style.display = "none";
     document.getElementById("prompt-area").style.display = "none";
     document.getElementById("admin-panel").style.display = "none";
@@ -269,8 +271,12 @@
 
     if (templateData) {
       // Edit mode
+      console.log("Edit mode - Template ID:", templateData.templateId);
       document.getElementById("editor-title").textContent = "Edit Template";
       document.getElementById("template-id").value = templateData.templateId;
+      document.getElementById("template-id-display").value =
+        templateData.templateId;
+      document.getElementById("template-id-debug").style.display = "block";
       document.getElementById("inquiry-reason").value =
         templateData.inquiryReason;
       document.getElementById("topic-name").value = templateData.topicName;
@@ -286,7 +292,9 @@
         "inline-block";
     } else {
       // Create mode
+      console.log("Create mode - no template ID");
       document.getElementById("editor-title").textContent = "Create Template";
+      document.getElementById("template-id-debug").style.display = "none";
       document.getElementById("delete-template-btn").style.display = "none";
     }
   }
@@ -502,18 +510,32 @@
   }
 
   function editTemplate(inquiryReason, topicName, caseName) {
+    console.log(
+      "editTemplate called with:",
+      inquiryReason,
+      topicName,
+      caseName
+    );
+
+    const templateId =
+      templatesData[inquiryReason][topicName][caseName].templateId;
+    console.log("Template ID from templatesData:", templateId);
+
     google.script.run
       .withSuccessHandler(function (templateData) {
+        console.log("getTemplateById returned:", templateData);
         if (templateData) {
           showTemplateEditor(templateData);
+        } else {
+          console.error("getTemplateById returned null/undefined");
+          alert("Error: Template data not found");
         }
       })
       .withFailureHandler(function (error) {
         console.error("Error loading template for edit:", error);
+        alert("Error loading template: " + error.message);
       })
-      .getTemplateById(
-        templatesData[inquiryReason][topicName][caseName].templateId
-      );
+      .getTemplateById(templateId);
   }
 
   // Admin functions
@@ -603,8 +625,11 @@
   function handleTemplateSave(e) {
     e.preventDefault();
 
+    const templateId = document.getElementById("template-id").value;
+    console.log("handleTemplateSave - Template ID from form:", templateId);
+
     const templateData = {
-      templateId: document.getElementById("template-id").value || null,
+      templateId: templateId || null,
       inquiryReason: document.getElementById("inquiry-reason").value.trim(),
       topicName: document.getElementById("topic-name").value.trim(),
       caseName: document.getElementById("case-name").value.trim(),
@@ -616,6 +641,8 @@
       tasks: document.getElementById("tasks-input").value.trim(),
     };
 
+    console.log("Template data being sent:", templateData);
+
     const errorDiv = document.getElementById("template-error");
     const successDiv = document.getElementById("template-success");
 
@@ -626,6 +653,7 @@
 
     google.script.run
       .withSuccessHandler(function (result) {
+        console.log("saveTemplate returned:", result);
         submitBtn.textContent = "Save Template";
         submitBtn.disabled = false;
 
@@ -644,16 +672,17 @@
         }
       })
       .withFailureHandler(function (error) {
+        console.error("saveTemplate failed:", error);
         submitBtn.textContent = "Save Template";
         submitBtn.disabled = false;
         showError(errorDiv, "Error saving template. Please try again.");
-        console.error("Template save error:", error);
       })
       .saveTemplate(templateData);
   }
 
   function handleTemplateDelete() {
     const templateId = document.getElementById("template-id").value;
+    console.log("handleTemplateDelete - Template ID:", templateId);
 
     if (!templateId) return;
 
@@ -671,6 +700,7 @@
 
     google.script.run
       .withSuccessHandler(function (result) {
+        console.log("deleteTemplate returned:", result);
         deleteBtn.textContent = "Delete Template";
         deleteBtn.disabled = false;
 
@@ -682,10 +712,10 @@
         }
       })
       .withFailureHandler(function (error) {
+        console.error("deleteTemplate failed:", error);
         deleteBtn.textContent = "Delete Template";
         deleteBtn.disabled = false;
         alert("Error deleting template. Please try again.");
-        console.error("Template delete error:", error);
       })
       .deleteTemplate(templateId);
   }
