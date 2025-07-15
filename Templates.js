@@ -5,29 +5,29 @@ function getTemplatesHierarchy() {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const templatesSheet = ss.getSheetByName('templates');
-    
+
     if (!templatesSheet) {
       initializeSpreadsheet();
       return {};
     }
-    
+
     const data = templatesSheet.getDataRange().getValues();
     const hierarchy = {};
-    
+
     // Skip header row
     for (let i = 1; i < data.length; i++) {
       const [templateId, inquiryReason, topicName, caseName, templateContent, emailSubject, backendLog, tasks] = data[i];
-      
+
       if (!inquiryReason || !topicName || !caseName) continue;
-      
+
       if (!hierarchy[inquiryReason]) {
         hierarchy[inquiryReason] = {};
       }
-      
+
       if (!hierarchy[inquiryReason][topicName]) {
         hierarchy[inquiryReason][topicName] = {};
       }
-      
+
       hierarchy[inquiryReason][topicName][caseName] = {
         templateId,
         templateContent,
@@ -36,7 +36,7 @@ function getTemplatesHierarchy() {
         tasks
       };
     }
-    
+
     return hierarchy;
   } catch (error) {
     console.error('Error getting templates hierarchy:', error);
@@ -51,11 +51,11 @@ function getTemplateById(templateId) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const templatesSheet = ss.getSheetByName('templates');
-    
+
     if (!templatesSheet) return null;
-    
+
     const data = templatesSheet.getDataRange().getValues();
-    
+
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === templateId) {
         return {
@@ -71,7 +71,7 @@ function getTemplateById(templateId) {
         };
       }
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error getting template by ID:', error);
@@ -86,24 +86,24 @@ function saveTemplate(templateData) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let templatesSheet = ss.getSheetByName('templates');
-    
+
     if (!templatesSheet) {
       initializeSpreadsheet();
       templatesSheet = ss.getSheetByName('templates');
     }
-    
+
     // Validate required fields
     if (!templateData.inquiryReason || !templateData.topicName || !templateData.caseName || !templateData.templateContent || !templateData.emailSubject) {
       return { success: false, message: 'All required fields must be filled' };
     }
-    
+
     // Check for duplicate (same inquiry, topic, case) when creating new template
     if (!templateData.templateId) {
       if (checkDuplicateTemplate(templateData.inquiryReason, templateData.topicName, templateData.caseName)) {
         return { success: false, message: 'This template already exists. Please choose a different Case name.' };
       }
     }
-    
+
     const rowData = [
       templateData.templateId || generateTemplateId(),
       templateData.inquiryReason,
@@ -114,7 +114,7 @@ function saveTemplate(templateData) {
       templateData.backendLog || '',
       templateData.tasks || ''
     ];
-    
+
     if (templateData.templateId) {
       // Update existing template
       const existingTemplate = getTemplateById(templateData.templateId);
@@ -141,17 +141,17 @@ function saveTemplate(templateData) {
 function checkDuplicateTemplate(inquiryReason, topicName, caseName) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const templatesSheet = ss.getSheetByName('templates');
-  
+
   if (!templatesSheet) return false;
-  
+
   const data = templatesSheet.getDataRange().getValues();
-  
+
   for (let i = 1; i < data.length; i++) {
     if (data[i][1] === inquiryReason && data[i][2] === topicName && data[i][3] === caseName) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -169,18 +169,18 @@ function deleteTemplate(templateId) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const templatesSheet = ss.getSheetByName('templates');
-    
+
     if (!templatesSheet) return { success: false, message: 'Templates sheet not found' };
-    
+
     const data = templatesSheet.getDataRange().getValues();
-    
+
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === templateId) {
         templatesSheet.deleteRow(i + 1);
         return { success: true, message: 'Template deleted successfully' };
       }
     }
-    
+
     return { success: false, message: 'Template not found' };
   } catch (error) {
     console.error('Error deleting template:', error);
@@ -193,10 +193,10 @@ function deleteTemplate(templateId) {
  */
 function processTemplate(content, userData) {
   if (!content) return '';
-  
+
   // Replace automatic placeholders
   let processed = content.replace(/\{\{agent_name\}\}/g, userData.name || '');
   processed = processed.replace(/\{\{agent_division\}\}/g, userData.division || '');
-  
+
   return processed;
 }

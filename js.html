@@ -1,698 +1,765 @@
 <script>
-// Global variables
-let currentUser = null;
-let templatesData = {};
-let currentTemplate = null;
+  // Global variables
+  let currentUser = null;
+  let templatesData = {};
+  let currentTemplate = null;
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', function() {
+  // Initialize app
+  document.addEventListener("DOMContentLoaded", function () {
     initializeApp();
-});
+  });
 
-function initializeApp() {
+  function initializeApp() {
     // Check for existing session
-    const savedUser = sessionStorage.getItem('calTemplatesUser');
+    const savedUser = sessionStorage.getItem("calTemplatesUser");
     if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        showDashboard();
+      currentUser = JSON.parse(savedUser);
+      showDashboard();
     } else {
-        showLogin();
+      showLogin();
     }
-    
+
     // Bind event listeners
     bindEventListeners();
-}
+  }
 
-function bindEventListeners() {
+  function bindEventListeners() {
     // Login form
-    document.getElementById('login-btn').addEventListener('click', handleLogin);
-    document.getElementById('eid-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') handleLogin();
-    });
-    
+    document.getElementById("login-btn").addEventListener("click", handleLogin);
+    document
+      .getElementById("eid-input")
+      .addEventListener("keypress", function (e) {
+        if (e.key === "Enter") handleLogin();
+      });
+
     // Signup form
-    document.getElementById('show-signup').addEventListener('click', showSignupForm);
-    document.getElementById('back-to-login').addEventListener('click', showLoginForm);
-    document.getElementById('signup-btn').addEventListener('click', handleSignup);
-    
+    document
+      .getElementById("show-signup")
+      .addEventListener("click", showSignupForm);
+    document
+      .getElementById("back-to-login")
+      .addEventListener("click", showLoginForm);
+    document
+      .getElementById("signup-btn")
+      .addEventListener("click", handleSignup);
+
     // Dashboard
-    document.getElementById('logout-btn').addEventListener('click', handleLogout);
-    
+    document
+      .getElementById("logout-btn")
+      .addEventListener("click", handleLogout);
+
     // Admin panel
-    document.getElementById('show-admin-panel').addEventListener('click', showAdminPanel);
-    document.getElementById('close-admin-panel').addEventListener('click', showTemplatesView);
-    document.getElementById('create-template-btn').addEventListener('click', showTemplateEditor);
-    
+    document
+      .getElementById("show-admin-panel")
+      .addEventListener("click", showAdminPanel);
+    document
+      .getElementById("close-admin-panel")
+      .addEventListener("click", showTemplatesView);
+    document
+      .getElementById("create-template-btn")
+      .addEventListener("click", showTemplateEditor);
+
     // Template editor
-    document.getElementById('close-editor').addEventListener('click', closeTemplateEditor);
-    document.getElementById('template-form').addEventListener('submit', handleTemplateSave);
-    document.getElementById('delete-template-btn').addEventListener('click', handleTemplateDelete);
-    
+    document
+      .getElementById("close-editor")
+      .addEventListener("click", closeTemplateEditor);
+    document
+      .getElementById("template-form")
+      .addEventListener("submit", handleTemplateSave);
+    document
+      .getElementById("delete-template-btn")
+      .addEventListener("click", handleTemplateDelete);
+
     // Copy buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('copy-btn')) {
-            handleCopy(e.target);
-        }
+    document.addEventListener("click", function (e) {
+      if (e.target.classList.contains("copy-btn")) {
+        handleCopy(e.target);
+      }
     });
-}
+  }
 
-// Authentication functions
-function handleLogin() {
-    const eid = document.getElementById('eid-input').value.trim();
-    const errorDiv = document.getElementById('login-error');
-    const signupPrompt = document.getElementById('signup-prompt');
-    
+  // Authentication functions
+  function handleLogin() {
+    const eid = document.getElementById("eid-input").value.trim();
+    const errorDiv = document.getElementById("login-error");
+    const signupPrompt = document.getElementById("signup-prompt");
+
     if (!eid) {
-        showError(errorDiv, 'Please enter your Employee ID');
-        return;
+      showError(errorDiv, "Please enter your Employee ID");
+      return;
     }
-    
-    if (!/^\d{7}$/.test(eid)) {
-        showError(errorDiv, 'Employee ID must be exactly 7 digits');
-        return;
-    }
-    
-    // Show loading
-    document.getElementById('login-btn').textContent = 'Logging in...';
-    document.getElementById('login-btn').disabled = true;
-    
-    google.script.run
-        .withSuccessHandler(function(result) {
-            document.getElementById('login-btn').textContent = 'Login';
-            document.getElementById('login-btn').disabled = false;
-            
-            if (result.success) {
-                currentUser = result.user;
-                sessionStorage.setItem('calTemplatesUser', JSON.stringify(currentUser));
-                showDashboard();
-            } else {
-                if (result.message === 'EID not found') {
-                    hideError(errorDiv);
-                    signupPrompt.style.display = 'block';
-                } else {
-                    showError(errorDiv, result.message);
-                    signupPrompt.style.display = 'none';
-                }
-            }
-        })
-        .withFailureHandler(function(error) {
-            document.getElementById('login-btn').textContent = 'Login';
-            document.getElementById('login-btn').disabled = false;
-            showError(errorDiv, 'Login failed. Please try again.');
-            console.error('Login error:', error);
-        })
-        .validateEID(eid);
-}
 
-function handleSignup() {
-    const eid = document.getElementById('signup-eid').value.trim();
-    const name = document.getElementById('signup-name').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const division = document.getElementById('signup-division').value.trim();
-    const errorDiv = document.getElementById('signup-error');
-    const successDiv = document.getElementById('signup-success');
-    
+    if (!/^\d{7}$/.test(eid)) {
+      showError(errorDiv, "Employee ID must be exactly 7 digits");
+      return;
+    }
+
+    // Show loading
+    document.getElementById("login-btn").textContent = "Logging in...";
+    document.getElementById("login-btn").disabled = true;
+
+    google.script.run
+      .withSuccessHandler(function (result) {
+        document.getElementById("login-btn").textContent = "Login";
+        document.getElementById("login-btn").disabled = false;
+
+        if (result.success) {
+          currentUser = result.user;
+          sessionStorage.setItem(
+            "calTemplatesUser",
+            JSON.stringify(currentUser)
+          );
+          showDashboard();
+        } else {
+          if (result.message === "EID not found") {
+            hideError(errorDiv);
+            signupPrompt.style.display = "block";
+          } else {
+            showError(errorDiv, result.message);
+            signupPrompt.style.display = "none";
+          }
+        }
+      })
+      .withFailureHandler(function (error) {
+        document.getElementById("login-btn").textContent = "Login";
+        document.getElementById("login-btn").disabled = false;
+        showError(errorDiv, "Login failed. Please try again.");
+        console.error("Login error:", error);
+      })
+      .validateEID(eid);
+  }
+
+  function handleSignup() {
+    const eid = document.getElementById("signup-eid").value.trim();
+    const name = document.getElementById("signup-name").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const division = document.getElementById("signup-division").value.trim();
+    const errorDiv = document.getElementById("signup-error");
+    const successDiv = document.getElementById("signup-success");
+
     // Validation
     if (!eid || !name || !email) {
-        showError(errorDiv, 'Please fill in all required fields');
-        return;
+      showError(errorDiv, "Please fill in all required fields");
+      return;
     }
-    
+
     if (!/^\d{7}$/.test(eid)) {
-        showError(errorDiv, 'Employee ID must be exactly 7 digits');
-        return;
+      showError(errorDiv, "Employee ID must be exactly 7 digits");
+      return;
     }
-    
+
     if (!/\S+@\S+\.\S+/.test(email)) {
-        showError(errorDiv, 'Please enter a valid email address');
-        return;
+      showError(errorDiv, "Please enter a valid email address");
+      return;
     }
-    
+
     // Show loading
-    document.getElementById('signup-btn').textContent = 'Submitting...';
-    document.getElementById('signup-btn').disabled = true;
-    
+    document.getElementById("signup-btn").textContent = "Submitting...";
+    document.getElementById("signup-btn").disabled = true;
+
     const signupData = {
-        eid: eid,
-        name: name,
-        email: email,
-        division: division || 'Customer Specialist'
+      eid: eid,
+      name: name,
+      email: email,
+      division: division || "Customer Specialist",
     };
-    
+
     google.script.run
-        .withSuccessHandler(function(result) {
-            document.getElementById('signup-btn').textContent = 'Submit Registration';
-            document.getElementById('signup-btn').disabled = false;
-            
-            if (result.success) {
-                hideError(errorDiv);
-                showSuccess(successDiv, 'Registration submitted successfully! Please wait for admin approval.');
-                // Clear form
-                document.getElementById('signup-eid').value = '';
-                document.getElementById('signup-name').value = '';
-                document.getElementById('signup-email').value = '';
-                document.getElementById('signup-division').value = '';
-            } else {
-                hideSuccess(successDiv);
-                showError(errorDiv, result.message);
-            }
-        })
-        .withFailureHandler(function(error) {
-            document.getElementById('signup-btn').textContent = 'Submit Registration';
-            document.getElementById('signup-btn').disabled = false;
-            showError(errorDiv, 'Registration failed. Please try again.');
-            console.error('Signup error:', error);
-        })
-        .submitSignup(signupData);
-}
+      .withSuccessHandler(function (result) {
+        document.getElementById("signup-btn").textContent =
+          "Submit Registration";
+        document.getElementById("signup-btn").disabled = false;
 
-function handleLogout() {
+        if (result.success) {
+          hideError(errorDiv);
+          showSuccess(
+            successDiv,
+            "Registration submitted successfully! Please wait for admin approval."
+          );
+          // Clear form
+          document.getElementById("signup-eid").value = "";
+          document.getElementById("signup-name").value = "";
+          document.getElementById("signup-email").value = "";
+          document.getElementById("signup-division").value = "";
+        } else {
+          hideSuccess(successDiv);
+          showError(errorDiv, result.message);
+        }
+      })
+      .withFailureHandler(function (error) {
+        document.getElementById("signup-btn").textContent =
+          "Submit Registration";
+        document.getElementById("signup-btn").disabled = false;
+        showError(errorDiv, "Registration failed. Please try again.");
+        console.error("Signup error:", error);
+      })
+      .submitSignup(signupData);
+  }
+
+  function handleLogout() {
     currentUser = null;
-    sessionStorage.removeItem('calTemplatesUser');
+    sessionStorage.removeItem("calTemplatesUser");
     showLogin();
-}
+  }
 
-// UI Navigation functions
-function showLogin() {
-    document.getElementById('login-section').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('eid-input').focus();
-}
+  // UI Navigation functions
+  function showLogin() {
+    document.getElementById("login-section").style.display = "flex";
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("eid-input").focus();
+  }
 
-function showDashboard() {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'flex';
-    
+  function showDashboard() {
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("dashboard").style.display = "flex";
+
     // Update user info
-    document.getElementById('user-name').textContent = `Welcome, ${currentUser.name}`;
-    document.getElementById('user-division').textContent = currentUser.division;
-    
+    document.getElementById(
+      "user-name"
+    ).textContent = `Welcome, ${currentUser.name}`;
+    document.getElementById("user-division").textContent = currentUser.division;
+
     // Show admin nav if user is admin
-    if (currentUser.role === 'admin') {
-        document.getElementById('admin-nav').style.display = 'block';
+    if (currentUser.role === "admin") {
+      document.getElementById("admin-nav").style.display = "block";
     }
-    
+
     // Load templates
     loadTemplates();
-}
+  }
 
-function showSignupForm() {
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('signup-form').style.display = 'block';
-    document.getElementById('signup-eid').focus();
-}
+  function showSignupForm() {
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("signup-form").style.display = "block";
+    document.getElementById("signup-eid").focus();
+  }
 
-function showLoginForm() {
-    document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-    document.getElementById('eid-input').focus();
-}
+  function showLoginForm() {
+    document.getElementById("signup-form").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+    document.getElementById("eid-input").focus();
+  }
 
-function showTemplatesView() {
-    document.getElementById('welcome-message').style.display = 'block';
-    document.getElementById('prompt-area').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'none';
-    document.getElementById('template-editor').style.display = 'none';
-}
+  function showTemplatesView() {
+    document.getElementById("welcome-message").style.display = "block";
+    document.getElementById("prompt-area").style.display = "none";
+    document.getElementById("admin-panel").style.display = "none";
+    document.getElementById("template-editor").style.display = "none";
+  }
 
-function showAdminPanel() {
-    document.getElementById('welcome-message').style.display = 'none';
-    document.getElementById('prompt-area').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    document.getElementById('template-editor').style.display = 'none';
-    
+  function showAdminPanel() {
+    document.getElementById("welcome-message").style.display = "none";
+    document.getElementById("prompt-area").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+    document.getElementById("template-editor").style.display = "none";
+
     loadPendingSignups();
-}
+  }
 
-function showTemplateEditor(templateData = null) {
-    document.getElementById('welcome-message').style.display = 'none';
-    document.getElementById('prompt-area').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'none';
-    document.getElementById('template-editor').style.display = 'block';
-    
+  function showTemplateEditor(templateData = null) {
+    document.getElementById("welcome-message").style.display = "none";
+    document.getElementById("prompt-area").style.display = "none";
+    document.getElementById("admin-panel").style.display = "none";
+    document.getElementById("template-editor").style.display = "block";
+
     // Clear form
-    document.getElementById('template-form').reset();
-    document.getElementById('template-error').style.display = 'none';
-    document.getElementById('template-success').style.display = 'none';
-    
+    document.getElementById("template-form").reset();
+    document.getElementById("template-error").style.display = "none";
+    document.getElementById("template-success").style.display = "none";
+
     if (templateData) {
-        // Edit mode
-        document.getElementById('editor-title').textContent = 'Edit Template';
-        document.getElementById('template-id').value = templateData.templateId;
-        document.getElementById('inquiry-reason').value = templateData.inquiryReason;
-        document.getElementById('topic-name').value = templateData.topicName;
-        document.getElementById('case-name').value = templateData.caseName;
-        document.getElementById('email-subject-input').value = templateData.emailSubject;
-        document.getElementById('template-content-input').value = templateData.templateContent;
-        document.getElementById('backend-log-input').value = templateData.backendLog || '';
-        document.getElementById('tasks-input').value = templateData.tasks || '';
-        document.getElementById('delete-template-btn').style.display = 'inline-block';
+      // Edit mode
+      document.getElementById("editor-title").textContent = "Edit Template";
+      document.getElementById("template-id").value = templateData.templateId;
+      document.getElementById("inquiry-reason").value =
+        templateData.inquiryReason;
+      document.getElementById("topic-name").value = templateData.topicName;
+      document.getElementById("case-name").value = templateData.caseName;
+      document.getElementById("email-subject-input").value =
+        templateData.emailSubject;
+      document.getElementById("template-content-input").value =
+        templateData.templateContent;
+      document.getElementById("backend-log-input").value =
+        templateData.backendLog || "";
+      document.getElementById("tasks-input").value = templateData.tasks || "";
+      document.getElementById("delete-template-btn").style.display =
+        "inline-block";
     } else {
-        // Create mode
-        document.getElementById('editor-title').textContent = 'Create Template';
-        document.getElementById('delete-template-btn').style.display = 'none';
+      // Create mode
+      document.getElementById("editor-title").textContent = "Create Template";
+      document.getElementById("delete-template-btn").style.display = "none";
     }
-}
+  }
 
-function closeTemplateEditor() {
-    if (currentUser.role === 'admin') {
-        showAdminPanel();
+  function closeTemplateEditor() {
+    if (currentUser.role === "admin") {
+      showAdminPanel();
     } else {
-        showTemplatesView();
+      showTemplatesView();
     }
-}
+  }
 
-// Templates functions
-function loadTemplates() {
+  // Templates functions
+  function loadTemplates() {
     google.script.run
-        .withSuccessHandler(function(hierarchy) {
-            templatesData = hierarchy;
-            renderTemplatesTree();
-        })
-        .withFailureHandler(function(error) {
-            console.error('Error loading templates:', error);
-        })
-        .getTemplatesHierarchy();
-}
+      .withSuccessHandler(function (hierarchy) {
+        templatesData = hierarchy;
+        renderTemplatesTree();
+      })
+      .withFailureHandler(function (error) {
+        console.error("Error loading templates:", error);
+      })
+      .getTemplatesHierarchy();
+  }
 
-function renderTemplatesTree() {
-    const treeContainer = document.getElementById('templates-tree');
-    treeContainer.innerHTML = '';
-    
+  function renderTemplatesTree() {
+    const treeContainer = document.getElementById("templates-tree");
+    treeContainer.innerHTML = "";
+
     if (Object.keys(templatesData).length === 0) {
-        treeContainer.innerHTML = '<p>No templates available</p>';
-        return;
+      treeContainer.innerHTML = "<p>No templates available</p>";
+      return;
     }
-    
-    for (const inquiryReason in templatesData) {
-        const inquiryDiv = createTreeNode(inquiryReason, 'inquiry');
-        
-        for (const topicName in templatesData[inquiryReason]) {
-            const topicDiv = createTreeNode(topicName, 'topic');
-            
-            for (const caseName in templatesData[inquiryReason][topicName]) {
-                const caseDiv = createCaseNode(caseName, inquiryReason, topicName);
-                topicDiv.querySelector('.tree-children').appendChild(caseDiv);
-            }
-            
-            inquiryDiv.querySelector('.tree-children').appendChild(topicDiv);
-        }
-        
-        treeContainer.appendChild(inquiryDiv);
-    }
-}
 
-function createTreeNode(name, type) {
-    const div = document.createElement('div');
-    div.className = 'tree-item';
-    
-    const toggle = document.createElement('button');
-    toggle.className = 'tree-toggle';
+    for (const inquiryReason in templatesData) {
+      const inquiryDiv = createTreeNode(inquiryReason, "inquiry");
+
+      for (const topicName in templatesData[inquiryReason]) {
+        const topicDiv = createTreeNode(topicName, "topic");
+
+        for (const caseName in templatesData[inquiryReason][topicName]) {
+          const caseDiv = createCaseNode(caseName, inquiryReason, topicName);
+          topicDiv.querySelector(".tree-children").appendChild(caseDiv);
+        }
+
+        inquiryDiv.querySelector(".tree-children").appendChild(topicDiv);
+      }
+
+      treeContainer.appendChild(inquiryDiv);
+    }
+  }
+
+  function createTreeNode(name, type) {
+    const div = document.createElement("div");
+    div.className = "tree-item";
+
+    const toggle = document.createElement("button");
+    toggle.className = "tree-toggle";
     toggle.textContent = `▶ ${name}`;
-    toggle.addEventListener('click', function() {
-        const children = div.querySelector('.tree-children');
-        const isOpen = children.style.display !== 'none';
-        children.style.display = isOpen ? 'none' : 'block';
-        toggle.textContent = `${isOpen ? '▶' : '▼'} ${name}`;
+    toggle.addEventListener("click", function () {
+      const children = div.querySelector(".tree-children");
+      const isOpen = children.style.display !== "none";
+      children.style.display = isOpen ? "none" : "block";
+      toggle.textContent = `${isOpen ? "▶" : "▼"} ${name}`;
     });
-    
-    const children = document.createElement('div');
-    children.className = 'tree-children';
-    children.style.display = 'none';
-    
+
+    const children = document.createElement("div");
+    children.className = "tree-children";
+    children.style.display = "none";
+
     div.appendChild(toggle);
     div.appendChild(children);
-    
-    return div;
-}
 
-function createCaseNode(caseName, inquiryReason, topicName) {
-    const div = document.createElement('div');
-    div.className = 'case-item';
-    div.addEventListener('click', function() {
-        selectTemplate(inquiryReason, topicName, caseName);
+    return div;
+  }
+
+  function createCaseNode(caseName, inquiryReason, topicName) {
+    const div = document.createElement("div");
+    div.className = "case-item";
+    div.addEventListener("click", function () {
+      selectTemplate(inquiryReason, topicName, caseName);
     });
-    
-    const nameSpan = document.createElement('span');
+
+    const nameSpan = document.createElement("span");
     nameSpan.textContent = caseName;
     div.appendChild(nameSpan);
-    
-    // Add edit button for admins
-    if (currentUser.role === 'admin') {
-        const editBtn = document.createElement('button');
-        editBtn.className = 'edit-case-btn';
-        editBtn.textContent = '✏️';
-        editBtn.title = 'Edit Template';
-        editBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            editTemplate(inquiryReason, topicName, caseName);
-        });
-        div.appendChild(editBtn);
-    }
-    
-    return div;
-}
 
-function selectTemplate(inquiryReason, topicName, caseName) {
+    // Add edit button for admins
+    if (currentUser.role === "admin") {
+      const editBtn = document.createElement("button");
+      editBtn.className = "edit-case-btn";
+      editBtn.textContent = "✏️";
+      editBtn.title = "Edit Template";
+      editBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        editTemplate(inquiryReason, topicName, caseName);
+      });
+      div.appendChild(editBtn);
+    }
+
+    return div;
+  }
+
+  function selectTemplate(inquiryReason, topicName, caseName) {
     // Remove active class from all case items
-    document.querySelectorAll('.case-item').forEach(item => {
-        item.classList.remove('active');
+    document.querySelectorAll(".case-item").forEach((item) => {
+      item.classList.remove("active");
     });
-    
+
     // Add active class to selected item
-    event.currentTarget.classList.add('active');
-    
+    event.currentTarget.classList.add("active");
+
     const templateData = templatesData[inquiryReason][topicName][caseName];
     currentTemplate = {
-        inquiryReason,
-        topicName,
-        caseName,
-        ...templateData
+      inquiryReason,
+      topicName,
+      caseName,
+      ...templateData,
     };
-    
-    displayTemplate();
-}
 
-function displayTemplate() {
+    displayTemplate();
+  }
+
+  function displayTemplate() {
     if (!currentTemplate) return;
-    
+
     // Show template area
-    document.getElementById('welcome-message').style.display = 'none';
-    document.getElementById('prompt-area').style.display = 'block';
-    
+    document.getElementById("welcome-message").style.display = "none";
+    document.getElementById("prompt-area").style.display = "block";
+
     // Update title
-    document.getElementById('template-title').textContent = 
-        `${currentTemplate.inquiryReason} > ${currentTemplate.topicName} > ${currentTemplate.caseName}`;
-    
+    document.getElementById(
+      "template-title"
+    ).textContent = `${currentTemplate.inquiryReason} > ${currentTemplate.topicName} > ${currentTemplate.caseName}`;
+
     // Show edit button for admins
-    if (currentUser.role === 'admin') {
-        document.getElementById('edit-template-btn').style.display = 'inline-block';
-        document.getElementById('edit-template-btn').onclick = function() {
-            editTemplate(currentTemplate.inquiryReason, currentTemplate.topicName, currentTemplate.caseName);
-        };
+    if (currentUser.role === "admin") {
+      document.getElementById("edit-template-btn").style.display =
+        "inline-block";
+      document.getElementById("edit-template-btn").onclick = function () {
+        editTemplate(
+          currentTemplate.inquiryReason,
+          currentTemplate.topicName,
+          currentTemplate.caseName
+        );
+      };
     }
-    
+
     // Process and display content
-    const processedContent = processTemplateContent(currentTemplate.templateContent);
-    
-    document.getElementById('email-subject').textContent = currentTemplate.emailSubject || '';
-    document.getElementById('backend-log').textContent = currentTemplate.backendLog || '';
-    document.getElementById('template-content').innerHTML = processedContent;
-    
+    const processedContent = processTemplateContent(
+      currentTemplate.templateContent
+    );
+
+    document.getElementById("email-subject").textContent =
+      currentTemplate.emailSubject || "";
+    document.getElementById("backend-log").textContent =
+      currentTemplate.backendLog || "";
+    document.getElementById("template-content").innerHTML = processedContent;
+
     // Handle tasks
     if (currentTemplate.tasks) {
-        const tasksSection = document.getElementById('tasks-section');
-        const tasksList = document.getElementById('task-checklist');
-        
-        const tasks = currentTemplate.tasks.split(';').filter(task => task.trim());
-        if (tasks.length > 0) {
-            tasksList.innerHTML = '';
-            tasks.forEach(task => {
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'task-item';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `task-${Math.random()}`;
-                
-                const label = document.createElement('label');
-                label.htmlFor = checkbox.id;
-                label.textContent = task.trim();
-                
-                taskDiv.appendChild(checkbox);
-                taskDiv.appendChild(label);
-                tasksList.appendChild(taskDiv);
-            });
-            
-            tasksSection.style.display = 'block';
-        } else {
-            tasksSection.style.display = 'none';
-        }
-    } else {
-        document.getElementById('tasks-section').style.display = 'none';
-    }
-}
+      const tasksSection = document.getElementById("tasks-section");
+      const tasksList = document.getElementById("task-checklist");
 
-function processTemplateContent(content) {
-    if (!content) return '';
-    
+      const tasks = currentTemplate.tasks
+        .split(";")
+        .filter((task) => task.trim());
+      if (tasks.length > 0) {
+        tasksList.innerHTML = "";
+        tasks.forEach((task) => {
+          const taskDiv = document.createElement("div");
+          taskDiv.className = "task-item";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `task-${Math.random()}`;
+
+          const label = document.createElement("label");
+          label.htmlFor = checkbox.id;
+          label.textContent = task.trim();
+
+          taskDiv.appendChild(checkbox);
+          taskDiv.appendChild(label);
+          tasksList.appendChild(taskDiv);
+        });
+
+        tasksSection.style.display = "block";
+      } else {
+        tasksSection.style.display = "none";
+      }
+    } else {
+      document.getElementById("tasks-section").style.display = "none";
+    }
+  }
+
+  function processTemplateContent(content) {
+    if (!content) return "";
+
     // Replace automatic placeholders
     let processed = content.replace(/\{\{agent_name\}\}/g, currentUser.name);
-    processed = processed.replace(/\{\{agent_division\}\}/g, currentUser.division);
-    
+    processed = processed.replace(
+      /\{\{agent_division\}\}/g,
+      currentUser.division
+    );
+
     // Highlight manual placeholders
-    processed = processed.replace(/xX([^X]+)Xx/g, '<span class="manual-placeholder">xX$1Xx</span>');
-    
+    processed = processed.replace(
+      /xX([^X]+)Xx/g,
+      '<span class="manual-placeholder">xX$1Xx</span>'
+    );
+
     return processed;
-}
+  }
 
-function editTemplate(inquiryReason, topicName, caseName) {
+  function editTemplate(inquiryReason, topicName, caseName) {
     google.script.run
-        .withSuccessHandler(function(templateData) {
-            if (templateData) {
-                showTemplateEditor(templateData);
-            }
-        })
-        .withFailureHandler(function(error) {
-            console.error('Error loading template for edit:', error);
-        })
-        .getTemplateById(templatesData[inquiryReason][topicName][caseName].templateId);
-}
+      .withSuccessHandler(function (templateData) {
+        if (templateData) {
+          showTemplateEditor(templateData);
+        }
+      })
+      .withFailureHandler(function (error) {
+        console.error("Error loading template for edit:", error);
+      })
+      .getTemplateById(
+        templatesData[inquiryReason][topicName][caseName].templateId
+      );
+  }
 
-// Admin functions
-function loadPendingSignups() {
+  // Admin functions
+  function loadPendingSignups() {
     google.script.run
-        .withSuccessHandler(function(signups) {
-            renderPendingSignups(signups);
-        })
-        .withFailureHandler(function(error) {
-            console.error('Error loading pending signups:', error);
-            document.getElementById('pending-signups').innerHTML = '<p>Error loading signups</p>';
-        })
-        .getPendingSignups();
-}
+      .withSuccessHandler(function (signups) {
+        renderPendingSignups(signups);
+      })
+      .withFailureHandler(function (error) {
+        console.error("Error loading pending signups:", error);
+        document.getElementById("pending-signups").innerHTML =
+          "<p>Error loading signups</p>";
+      })
+      .getPendingSignups();
+  }
 
-function renderPendingSignups(signups) {
-    const container = document.getElementById('pending-signups');
-    
+  function renderPendingSignups(signups) {
+    const container = document.getElementById("pending-signups");
+
     if (signups.length === 0) {
-        container.innerHTML = '<p>No pending signups</p>';
-        return;
+      container.innerHTML = "<p>No pending signups</p>";
+      return;
     }
-    
-    container.innerHTML = '';
-    
-    signups.forEach(signup => {
-        const signupDiv = document.createElement('div');
-        signupDiv.className = 'signup-item';
-        
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'signup-info';
-        
-        const nameH4 = document.createElement('h4');
-        nameH4.textContent = signup.name;
-        
-        const detailsP = document.createElement('p');
-        detailsP.textContent = `EID: ${signup.eid} | Email: ${signup.email} | Division: ${signup.division}`;
-        
-        infoDiv.appendChild(nameH4);
-        infoDiv.appendChild(detailsP);
-        
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'signup-actions';
-        
-        const approveBtn = document.createElement('button');
-        approveBtn.className = 'btn btn-primary btn-sm';
-        approveBtn.textContent = 'Approve';
-        approveBtn.addEventListener('click', function() {
-            processSignupRequest(signup.eid, 'approve');
-        });
-        
-        const denyBtn = document.createElement('button');
-        denyBtn.className = 'btn btn-danger btn-sm';
-        denyBtn.textContent = 'Deny';
-        denyBtn.addEventListener('click', function() {
-            processSignupRequest(signup.eid, 'deny');
-        });
-        
-        actionsDiv.appendChild(approveBtn);
-        actionsDiv.appendChild(denyBtn);
-        
-        signupDiv.appendChild(infoDiv);
-        signupDiv.appendChild(actionsDiv);
-        
-        container.appendChild(signupDiv);
+
+    container.innerHTML = "";
+
+    signups.forEach((signup) => {
+      const signupDiv = document.createElement("div");
+      signupDiv.className = "signup-item";
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "signup-info";
+
+      const nameH4 = document.createElement("h4");
+      nameH4.textContent = signup.name;
+
+      const detailsP = document.createElement("p");
+      detailsP.textContent = `EID: ${signup.eid} | Email: ${signup.email} | Division: ${signup.division}`;
+
+      infoDiv.appendChild(nameH4);
+      infoDiv.appendChild(detailsP);
+
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "signup-actions";
+
+      const approveBtn = document.createElement("button");
+      approveBtn.className = "btn btn-primary btn-sm";
+      approveBtn.textContent = "Approve";
+      approveBtn.addEventListener("click", function () {
+        processSignupRequest(signup.eid, "approve");
+      });
+
+      const denyBtn = document.createElement("button");
+      denyBtn.className = "btn btn-danger btn-sm";
+      denyBtn.textContent = "Deny";
+      denyBtn.addEventListener("click", function () {
+        processSignupRequest(signup.eid, "deny");
+      });
+
+      actionsDiv.appendChild(approveBtn);
+      actionsDiv.appendChild(denyBtn);
+
+      signupDiv.appendChild(infoDiv);
+      signupDiv.appendChild(actionsDiv);
+
+      container.appendChild(signupDiv);
     });
-}
+  }
 
-function processSignupRequest(eid, action) {
+  function processSignupRequest(eid, action) {
     google.script.run
-        .withSuccessHandler(function(result) {
-            if (result.success) {
-                loadPendingSignups(); // Refresh the list
-            } else {
-                alert('Error: ' + result.message);
-            }
-        })
-        .withFailureHandler(function(error) {
-            console.error('Error processing signup:', error);
-            alert('Error processing signup request');
-        })
-        .processSignup(eid, action);
-}
+      .withSuccessHandler(function (result) {
+        if (result.success) {
+          loadPendingSignups(); // Refresh the list
+        } else {
+          alert("Error: " + result.message);
+        }
+      })
+      .withFailureHandler(function (error) {
+        console.error("Error processing signup:", error);
+        alert("Error processing signup request");
+      })
+      .processSignup(eid, action);
+  }
 
-// Template management functions
-function handleTemplateSave(e) {
+  // Template management functions
+  function handleTemplateSave(e) {
     e.preventDefault();
-    
+
     const templateData = {
-        templateId: document.getElementById('template-id').value || null,
-        inquiryReason: document.getElementById('inquiry-reason').value.trim(),
-        topicName: document.getElementById('topic-name').value.trim(),
-        caseName: document.getElementById('case-name').value.trim(),
-        emailSubject: document.getElementById('email-subject-input').value.trim(),
-        templateContent: document.getElementById('template-content-input').value.trim(),
-        backendLog: document.getElementById('backend-log-input').value.trim(),
-        tasks: document.getElementById('tasks-input').value.trim()
+      templateId: document.getElementById("template-id").value || null,
+      inquiryReason: document.getElementById("inquiry-reason").value.trim(),
+      topicName: document.getElementById("topic-name").value.trim(),
+      caseName: document.getElementById("case-name").value.trim(),
+      emailSubject: document.getElementById("email-subject-input").value.trim(),
+      templateContent: document
+        .getElementById("template-content-input")
+        .value.trim(),
+      backendLog: document.getElementById("backend-log-input").value.trim(),
+      tasks: document.getElementById("tasks-input").value.trim(),
     };
-    
-    const errorDiv = document.getElementById('template-error');
-    const successDiv = document.getElementById('template-success');
-    
+
+    const errorDiv = document.getElementById("template-error");
+    const successDiv = document.getElementById("template-success");
+
     // Show loading
     const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.textContent = 'Saving...';
+    submitBtn.textContent = "Saving...";
     submitBtn.disabled = true;
-    
-    google.script.run
-        .withSuccessHandler(function(result) {
-            submitBtn.textContent = 'Save Template';
-            submitBtn.disabled = false;
-            
-            if (result.success) {
-                hideError(errorDiv);
-                showSuccess(successDiv, result.message);
-                loadTemplates(); // Refresh templates
-                
-                // Close editor after a delay
-                setTimeout(function() {
-                    closeTemplateEditor();
-                }, 1500);
-            } else {
-                hideSuccess(successDiv);
-                showError(errorDiv, result.message);
-            }
-        })
-        .withFailureHandler(function(error) {
-            submitBtn.textContent = 'Save Template';
-            submitBtn.disabled = false;
-            showError(errorDiv, 'Error saving template. Please try again.');
-            console.error('Template save error:', error);
-        })
-        .saveTemplate(templateData);
-}
 
-function handleTemplateDelete() {
-    const templateId = document.getElementById('template-id').value;
-    
+    google.script.run
+      .withSuccessHandler(function (result) {
+        submitBtn.textContent = "Save Template";
+        submitBtn.disabled = false;
+
+        if (result.success) {
+          hideError(errorDiv);
+          showSuccess(successDiv, result.message);
+          loadTemplates(); // Refresh templates
+
+          // Close editor after a delay
+          setTimeout(function () {
+            closeTemplateEditor();
+          }, 1500);
+        } else {
+          hideSuccess(successDiv);
+          showError(errorDiv, result.message);
+        }
+      })
+      .withFailureHandler(function (error) {
+        submitBtn.textContent = "Save Template";
+        submitBtn.disabled = false;
+        showError(errorDiv, "Error saving template. Please try again.");
+        console.error("Template save error:", error);
+      })
+      .saveTemplate(templateData);
+  }
+
+  function handleTemplateDelete() {
+    const templateId = document.getElementById("template-id").value;
+
     if (!templateId) return;
-    
-    if (!confirm('Are you sure you want to delete this template? This action cannot be undone.')) {
-        return;
-    }
-    
-    const deleteBtn = document.getElementById('delete-template-btn');
-    deleteBtn.textContent = 'Deleting...';
-    deleteBtn.disabled = true;
-    
-    google.script.run
-        .withSuccessHandler(function(result) {
-            deleteBtn.textContent = 'Delete Template';
-            deleteBtn.disabled = false;
-            
-            if (result.success) {
-                loadTemplates(); // Refresh templates
-                closeTemplateEditor();
-            } else {
-                alert('Error: ' + result.message);
-            }
-        })
-        .withFailureHandler(function(error) {
-            deleteBtn.textContent = 'Delete Template';
-            deleteBtn.disabled = false;
-            alert('Error deleting template. Please try again.');
-            console.error('Template delete error:', error);
-        })
-        .deleteTemplate(templateId);
-}
 
-// Utility functions
-function handleCopy(button) {
-    const targetId = button.getAttribute('data-target');
+    if (
+      !confirm(
+        "Are you sure you want to delete this template? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    const deleteBtn = document.getElementById("delete-template-btn");
+    deleteBtn.textContent = "Deleting...";
+    deleteBtn.disabled = true;
+
+    google.script.run
+      .withSuccessHandler(function (result) {
+        deleteBtn.textContent = "Delete Template";
+        deleteBtn.disabled = false;
+
+        if (result.success) {
+          loadTemplates(); // Refresh templates
+          closeTemplateEditor();
+        } else {
+          alert("Error: " + result.message);
+        }
+      })
+      .withFailureHandler(function (error) {
+        deleteBtn.textContent = "Delete Template";
+        deleteBtn.disabled = false;
+        alert("Error deleting template. Please try again.");
+        console.error("Template delete error:", error);
+      })
+      .deleteTemplate(templateId);
+  }
+
+  // Utility functions
+  function handleCopy(button) {
+    const targetId = button.getAttribute("data-target");
     const targetElement = document.getElementById(targetId);
-    
+
     if (!targetElement) return;
-    
+
     const text = targetElement.textContent || targetElement.innerText;
-    
+
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() {
-            showCopySuccess(button);
-        }).catch(function(err) {
-            console.error('Copy failed:', err);
-            fallbackCopy(text, button);
+      navigator.clipboard
+        .writeText(text)
+        .then(function () {
+          showCopySuccess(button);
+        })
+        .catch(function (err) {
+          console.error("Copy failed:", err);
+          fallbackCopy(text, button);
         });
     } else {
-        fallbackCopy(text, button);
+      fallbackCopy(text, button);
     }
-}
+  }
 
-function fallbackCopy(text, button) {
-    const textArea = document.createElement('textarea');
+  function fallbackCopy(text, button) {
+    const textArea = document.createElement("textarea");
     textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    
+
     try {
-        document.execCommand('copy');
-        showCopySuccess(button);
+      document.execCommand("copy");
+      showCopySuccess(button);
     } catch (err) {
-        console.error('Fallback copy failed:', err);
+      console.error("Fallback copy failed:", err);
     }
-    
+
     document.body.removeChild(textArea);
-}
+  }
 
-function showCopySuccess(button) {
+  function showCopySuccess(button) {
     const originalText = button.textContent;
-    button.textContent = 'Copied!';
-    button.style.background = '#28a745';
-    
-    setTimeout(function() {
-        button.textContent = originalText;
-        button.style.background = '';
+    button.textContent = "Copied!";
+    button.style.background = "#28a745";
+
+    setTimeout(function () {
+      button.textContent = originalText;
+      button.style.background = "";
     }, 1500);
-}
+  }
 
-function showError(element, message) {
+  function showError(element, message) {
     element.textContent = message;
-    element.style.display = 'block';
-}
+    element.style.display = "block";
+  }
 
-function hideError(element) {
-    element.style.display = 'none';
-}
+  function hideError(element) {
+    element.style.display = "none";
+  }
 
-function showSuccess(element, message) {
+  function showSuccess(element, message) {
     element.textContent = message;
-    element.style.display = 'block';
-}
+    element.style.display = "block";
+  }
 
-function hideSuccess(element) {
-    element.style.display = 'none';
-}
+  function hideSuccess(element) {
+    element.style.display = "none";
+  }
 </script>

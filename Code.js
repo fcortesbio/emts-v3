@@ -26,21 +26,21 @@ function include(filename) {
  */
 function initializeSpreadsheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   // Create users sheet if it doesn't exist
   let usersSheet = ss.getSheetByName('users');
   if (!usersSheet) {
     usersSheet = ss.insertSheet('users');
     usersSheet.getRange('A1:E1').setValues([['agent_eid', 'agent_name', 'agent_division', 'agent_role', 'agent_email']]);
   }
-  
+
   // Create signup sheet if it doesn't exist
   let signupSheet = ss.getSheetByName('signup');
   if (!signupSheet) {
     signupSheet = ss.insertSheet('signup');
     signupSheet.getRange('A1:F1').setValues([['agent_eid', 'agent_name', 'agent_email', 'agent_division', 'agent_role', 'status']]);
   }
-  
+
   // Create templates sheet if it doesn't exist
   let templatesSheet = ss.getSheetByName('templates');
   if (!templatesSheet) {

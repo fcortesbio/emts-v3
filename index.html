@@ -1,223 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cal Templates - Email Templates System</title>
     <?!= include('css'); ?>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Login Section -->
     <div id="login-section">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>Cal Templates</h1>
-                <p>Email Templates System</p>
-            </div>
-            
-            <div class="login-form">
-                <div id="login-form">
-                    <h2>Agent Login</h2>
-                    <div class="form-group">
-                        <label for="eid-input">Employee ID</label>
-                        <input type="number" id="eid-input" placeholder="Enter your 7-digit EID" maxlength="7">
-                    </div>
-                    <button id="login-btn" class="btn btn-primary">Login</button>
-                    <div id="login-error" class="error-message" style="display: none;"></div>
-                    <div id="signup-prompt" style="display: none;">
-                        <p>EID not found. <a href="#" id="show-signup">Click here to register</a></p>
-                    </div>
-                </div>
-                
-                <div id="signup-form" style="display: none;">
-                    <h2>Agent Registration</h2>
-                    <div class="form-group">
-                        <label for="signup-eid">Employee ID *</label>
-                        <input type="number" id="signup-eid" placeholder="7-digit EID" maxlength="7" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="signup-name">Full Name *</label>
-                        <input type="text" id="signup-name" placeholder="Last, First" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="signup-email">Email *</label>
-                        <input type="email" id="signup-email" placeholder="your.email@domain.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="signup-division">Division</label>
-                        <input type="text" id="signup-division" placeholder="Customer Specialist">
-                    </div>
-                    <button id="signup-btn" class="btn btn-primary">Submit Registration</button>
-                    <button id="back-to-login" class="btn btn-secondary">Back to Login</button>
-                    <div id="signup-error" class="error-message" style="display: none;"></div>
-                    <div id="signup-success" class="success-message" style="display: none;"></div>
-                </div>
-            </div>
+      <div class="login-container">
+        <div class="login-header">
+          <h1>Cal Templates</h1>
+          <p>Email Templates System</p>
         </div>
+
+        <div class="login-form">
+          <div id="login-form">
+            <h2>Agent Login</h2>
+            <div class="form-group">
+              <label for="eid-input">Employee ID</label>
+              <input
+                type="number"
+                id="eid-input"
+                placeholder="Enter your 7-digit EID"
+                maxlength="7"
+              />
+            </div>
+            <button id="login-btn" class="btn btn-primary">Login</button>
+            <div
+              id="login-error"
+              class="error-message"
+              style="display: none"
+            ></div>
+            <div id="signup-prompt" style="display: none">
+              <p>
+                EID not found.
+                <a href="#" id="show-signup">Click here to register</a>
+              </p>
+            </div>
+          </div>
+
+          <div id="signup-form" style="display: none">
+            <h2>Agent Registration</h2>
+            <div class="form-group">
+              <label for="signup-eid">Employee ID *</label>
+              <input
+                type="number"
+                id="signup-eid"
+                placeholder="7-digit EID"
+                maxlength="7"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="signup-name">Full Name *</label>
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="Last, First"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Email *</label>
+              <input
+                type="email"
+                id="signup-email"
+                placeholder="your.email@domain.com"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="signup-division">Division</label>
+              <input
+                type="text"
+                id="signup-division"
+                placeholder="Customer Specialist"
+              />
+            </div>
+            <button id="signup-btn" class="btn btn-primary">
+              Submit Registration
+            </button>
+            <button id="back-to-login" class="btn btn-secondary">
+              Back to Login
+            </button>
+            <div
+              id="signup-error"
+              class="error-message"
+              style="display: none"
+            ></div>
+            <div
+              id="signup-success"
+              class="success-message"
+              style="display: none"
+            ></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Dashboard -->
-    <div id="dashboard" style="display: none;">
-        <header class="header">
-            <div class="header-content">
-                <h1>Cal Templates</h1>
-                <div class="user-info">
-                    <span id="user-name">Welcome, Agent</span>
-                    <span id="user-division"></span>
-                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
-                </div>
+    <div id="dashboard" style="display: none">
+      <header class="header">
+        <div class="header-content">
+          <h1>Cal Templates</h1>
+          <div class="user-info">
+            <span id="user-name">Welcome, Agent</span>
+            <span id="user-division"></span>
+            <button id="logout-btn" class="btn btn-secondary">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="sidebar" id="navigation-bar">
+          <div class="nav-section">
+            <h3>Templates</h3>
+            <div id="templates-tree"></div>
+          </div>
+
+          <div id="admin-nav" class="nav-section" style="display: none">
+            <h3>Admin Panel</h3>
+            <button id="show-admin-panel" class="btn btn-outline">
+              Manage System
+            </button>
+          </div>
+        </div>
+
+        <div class="content" id="main-board">
+          <div class="welcome-message" id="welcome-message">
+            <h2>Welcome to Cal Templates</h2>
+            <p>Select a template from the sidebar to get started.</p>
+            <div class="quick-stats">
+              <div class="stat-card">
+                <h4>Quick Access</h4>
+                <p>Browse templates by Inquiry Reason → Topic → Case</p>
+              </div>
+              <div class="stat-card">
+                <h4>Copy & Paste</h4>
+                <p>Click copy buttons to quickly grab template content</p>
+              </div>
             </div>
-        </header>
+          </div>
 
-        <main class="main-content">
-            <div class="sidebar" id="navigation-bar">
-                <div class="nav-section">
-                    <h3>Templates</h3>
-                    <div id="templates-tree"></div>
-                </div>
-                
-                <div id="admin-nav" class="nav-section" style="display: none;">
-                    <h3>Admin Panel</h3>
-                    <button id="show-admin-panel" class="btn btn-outline">Manage System</button>
-                </div>
+          <div id="prompt-area" style="display: none">
+            <div class="template-header">
+              <h3 id="template-title"></h3>
+              <div class="template-actions">
+                <button
+                  id="edit-template-btn"
+                  class="btn btn-outline"
+                  style="display: none"
+                >
+                  Edit Template
+                </button>
+              </div>
             </div>
 
-            <div class="content" id="main-board">
-                <div class="welcome-message" id="welcome-message">
-                    <h2>Welcome to Cal Templates</h2>
-                    <p>Select a template from the sidebar to get started.</p>
-                    <div class="quick-stats">
-                        <div class="stat-card">
-                            <h4>Quick Access</h4>
-                            <p>Browse templates by Inquiry Reason → Topic → Case</p>
-                        </div>
-                        <div class="stat-card">
-                            <h4>Copy & Paste</h4>
-                            <p>Click copy buttons to quickly grab template content</p>
-                        </div>
-                    </div>
+            <div class="template-content">
+              <div class="template-section">
+                <label>Email Subject:</label>
+                <div class="copy-container">
+                  <div id="email-subject" class="content-box"></div>
+                  <button class="copy-btn" data-target="email-subject">
+                    Copy
+                  </button>
                 </div>
+              </div>
 
-                <div id="prompt-area" style="display: none;">
-                    <div class="template-header">
-                        <h3 id="template-title"></h3>
-                        <div class="template-actions">
-                            <button id="edit-template-btn" class="btn btn-outline" style="display: none;">Edit Template</button>
-                        </div>
-                    </div>
-                    
-                    <div class="template-content">
-                        <div class="template-section">
-                            <label>Email Subject:</label>
-                            <div class="copy-container">
-                                <div id="email-subject" class="content-box"></div>
-                                <button class="copy-btn" data-target="email-subject">Copy</button>
-                            </div>
-                        </div>
-                        
-                        <div class="template-section">
-                            <label>Backend Log:</label>
-                            <div class="copy-container">
-                                <div id="backend-log" class="content-box"></div>
-                                <button class="copy-btn" data-target="backend-log">Copy</button>
-                            </div>
-                        </div>
-                        
-                        <div class="template-section">
-                            <label>Template Content:</label>
-                            <div class="copy-container">
-                                <div id="template-content" class="content-box editable" contenteditable="true"></div>
-                                <button class="copy-btn" data-target="template-content">Copy</button>
-                            </div>
-                        </div>
-                        
-                        <div class="template-section" id="tasks-section" style="display: none;">
-                            <label>Task Checklist:</label>
-                            <div id="task-checklist" class="task-list"></div>
-                        </div>
-                    </div>
+              <div class="template-section">
+                <label>Backend Log:</label>
+                <div class="copy-container">
+                  <div id="backend-log" class="content-box"></div>
+                  <button class="copy-btn" data-target="backend-log">
+                    Copy
+                  </button>
                 </div>
+              </div>
 
-                <div id="admin-panel" style="display: none;">
-                    <div class="admin-header">
-                        <h2>Admin Panel</h2>
-                        <button id="close-admin-panel" class="btn btn-secondary">Back to Templates</button>
-                    </div>
-                    
-                    <div class="admin-sections">
-                        <div class="admin-section">
-                            <h3>Pending Signups</h3>
-                            <div id="pending-signups">
-                                <p>Loading...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="admin-section">
-                            <h3>Template Management</h3>
-                            <button id="create-template-btn" class="btn btn-primary">+ Create Template</button>
-                        </div>
-                    </div>
+              <div class="template-section">
+                <label>Template Content:</label>
+                <div class="copy-container">
+                  <div
+                    id="template-content"
+                    class="content-box editable"
+                    contenteditable="true"
+                  ></div>
+                  <button class="copy-btn" data-target="template-content">
+                    Copy
+                  </button>
                 </div>
+              </div>
 
-                <div id="template-editor" style="display: none;">
-                    <div class="editor-header">
-                        <h2 id="editor-title">Create Template</h2>
-                        <button id="close-editor" class="btn btn-secondary">Cancel</button>
-                    </div>
-                    
-                    <form id="template-form" class="template-form">
-                        <input type="hidden" id="template-id">
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="inquiry-reason">Inquiry Reason *</label>
-                                <input type="text" id="inquiry-reason" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="topic-name">Topic Name *</label>
-                                <input type="text" id="topic-name" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="case-name">Case Name *</label>
-                            <input type="text" id="case-name" required>
-                            <small>Must be unique within the topic</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email-subject-input">Email Subject *</label>
-                            <input type="text" id="email-subject-input" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="template-content-input">Template Content *</label>
-                            <textarea id="template-content-input" rows="8" required placeholder="Use {{agent_name}} and {{agent_division}} for automatic replacement. Use xXPlaceholderXx for manual placeholders."></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="backend-log-input">Backend Log</label>
-                            <textarea id="backend-log-input" rows="3"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="tasks-input">Task List</label>
-                            <textarea id="tasks-input" rows="3" placeholder="Separate tasks with semicolons (;)"></textarea>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Template</button>
-                            <button type="button" id="delete-template-btn" class="btn btn-danger" style="display: none;">Delete Template</button>
-                        </div>
-                        
-                        <div id="template-error" class="error-message" style="display: none;"></div>
-                        <div id="template-success" class="success-message" style="display: none;"></div>
-                    </form>
-                </div>
+              <div
+                class="template-section"
+                id="tasks-section"
+                style="display: none"
+              >
+                <label>Task Checklist:</label>
+                <div id="task-checklist" class="task-list"></div>
+              </div>
             </div>
-        </main>
+          </div>
+
+          <div id="admin-panel" style="display: none">
+            <div class="admin-header">
+              <h2>Admin Panel</h2>
+              <button id="close-admin-panel" class="btn btn-secondary">
+                Back to Templates
+              </button>
+            </div>
+
+            <div class="admin-sections">
+              <div class="admin-section">
+                <h3>Pending Signups</h3>
+                <div id="pending-signups">
+                  <p>Loading...</p>
+                </div>
+              </div>
+
+              <div class="admin-section">
+                <h3>Template Management</h3>
+                <button id="create-template-btn" class="btn btn-primary">
+                  + Create Template
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="template-editor" style="display: none">
+            <div class="editor-header">
+              <h2 id="editor-title">Create Template</h2>
+              <button id="close-editor" class="btn btn-secondary">
+                Cancel
+              </button>
+            </div>
+
+            <form id="template-form" class="template-form">
+              <input type="hidden" id="template-id" />
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="inquiry-reason">Inquiry Reason *</label>
+                  <input type="text" id="inquiry-reason" required />
+                </div>
+                <div class="form-group">
+                  <label for="topic-name">Topic Name *</label>
+                  <input type="text" id="topic-name" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="case-name">Case Name *</label>
+                <input type="text" id="case-name" required />
+                <small>Must be unique within the topic</small>
+              </div>
+
+              <div class="form-group">
+                <label for="email-subject-input">Email Subject *</label>
+                <input type="text" id="email-subject-input" required />
+              </div>
+
+              <div class="form-group">
+                <label for="template-content-input">Template Content *</label>
+                <textarea
+                  id="template-content-input"
+                  rows="8"
+                  required
+                  placeholder="Use {{agent_name}} and {{agent_division}} for automatic replacement. Use xXPlaceholderXx for manual placeholders."
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="backend-log-input">Backend Log</label>
+                <textarea id="backend-log-input" rows="3"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="tasks-input">Task List</label>
+                <textarea
+                  id="tasks-input"
+                  rows="3"
+                  placeholder="Separate tasks with semicolons (;)"
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  Save Template
+                </button>
+                <button
+                  type="button"
+                  id="delete-template-btn"
+                  class="btn btn-danger"
+                  style="display: none"
+                >
+                  Delete Template
+                </button>
+              </div>
+
+              <div
+                id="template-error"
+                class="error-message"
+                style="display: none"
+              ></div>
+              <div
+                id="template-success"
+                class="success-message"
+                style="display: none"
+              ></div>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
 
     <?!= include('js'); ?>
-</body>
+  </body>
 </html>
